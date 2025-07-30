@@ -39,10 +39,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.io {
         let mut table_inputs = Table::new();
-        table_inputs.add_row(vec!["Name", "Type", "Shape"].into());
+        table_inputs.add_row(
+            vec![
+                "Name",
+                "Type",
+                "Shape",
+                "Format",
+                "Quantization",
+                "Quant Param",
+            ]
+            .into(),
+        );
 
         let mut table_outputs = Table::new();
-        table_outputs.add_row(vec!["Name", "Type", "Shape"].into());
+        table_outputs.add_row(
+            vec![
+                "Name",
+                "Type",
+                "Shape",
+                "Format",
+                "Quantization",
+                "Quant Param",
+            ]
+            .into(),
+        );
 
         let io_num = rknn_model.query::<InputOutputNum>()?;
         for i in 0..io_num.input_num() {
@@ -52,6 +72,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     input.name().to_string(),
                     format!("{:?}", input.dtype()),
                     format!("{:?}", input.dims()),
+                    format!("{:?}", input.format()),
+                    format!("{:?}", input.qnt_type()),
+                    format!("{:?}", input.affine_asymmetric_param()),
                 ]
                 .into(),
             );
@@ -64,6 +87,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     output.name().to_string(),
                     format!("{:?}", output.dtype()),
                     format!("{:?}", output.dims()),
+                    format!("{:?}", output.format()),
+                    format!("{:?}", output.qnt_type()),
+                    format!("{:?}", output.affine_asymmetric_param()),
                 ]
                 .into(),
             );
