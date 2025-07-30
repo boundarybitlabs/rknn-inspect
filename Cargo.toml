@@ -7,4 +7,4 @@ edition = "2024"
 clap = { version = "4.5.41", features = ["derive"] }
 half = "2.6.0"
 prettytable-rs = "0.10.0"
-rknpu2 = { path = "../rknpu2-rs/crates/rknpu2", features = ["libloading", "rk3576"] }
+rknpu2 = { git = "https://github.com/boundarybitlabs/rknpu2-rs", features = ["libloading", "rk3576"] }
