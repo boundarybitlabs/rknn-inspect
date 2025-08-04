@@ -11,6 +11,9 @@ pub struct Args {
     #[clap(help = "Path to the model file")]
     pub model_path: String,
 
+    #[clap(long, default_value_t = 0, help = "Which library path to use")]
+    pub lib_index: usize,
+
     #[clap(short, long, help = "Show inputs and outputs")]
     pub io: bool,
 

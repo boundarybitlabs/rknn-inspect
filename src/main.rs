@@ -1,8 +1,11 @@
 use {
     crate::{cli::Args, io::do_io, perf::do_perf, sdk::do_sdk},
     clap::Parser,
-    rknpu2::{RKNN, rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK},
-    stanza::renderer::console::Console,
+    rknpu2::{RKNN, rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK, utils::find_rknn_library},
+    stanza::{
+        renderer::{Renderer, console::Console},
+        table::Table,
+    },
 };
 
 mod cli;
@@ -14,21 +17,42 @@ mod sdk;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
+    let console = Console::default();
+
+    let library_paths = find_rknn_library().collect::<Vec<_>>();
+
+    if library_paths.is_empty() {
+        eprintln!("No RKNN library found");
+        std::process::exit(1);
+    }
+
+    let mut table = Table::default();
+    table.push_row(["Index", "Library Path"]);
+
+    for (i, path) in library_paths.iter().enumerate() {
+        table.push_row([i.to_string(), path.display().to_string()]);
+    }
+
+    println!("{}", console.render(&table).to_string());
+
     let mut bytes = std::fs::read(&args.model_path)?;
 
-    let rknn_model = match RKNN::new_with_library(
-        "/usr/lib/librknnrt.so",
-        &mut bytes,
-        RKNN_FLAG_COLLECT_PERF_MASK,
-    ) {
-        Ok(model) => model,
-        Err(err) => {
-            eprintln!("Failed to load model: {}", err);
+    let library_path = match library_paths.get(args.lib_index) {
+        Some(path) => path.clone(),
+        None => {
+            eprintln!("Invalid library index");
             std::process::exit(1);
         }
     };
 
-    let console = Console::default();
+    let rknn_model =
+        match RKNN::new_with_library(library_path, &mut bytes, RKNN_FLAG_COLLECT_PERF_MASK) {
+            Ok(model) => model,
+            Err(err) => {
+                eprintln!("Failed to load model: {}", err);
+                std::process::exit(1);
+            }
+        };
 
     if args.sdk {
         if let Err(e) = do_sdk(&rknn_model, &console) {
