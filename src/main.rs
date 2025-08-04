@@ -3,7 +3,10 @@ use {
     clap::Parser,
     rknpu2::{RKNN, rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK, utils::find_rknn_library},
     stanza::{
-        renderer::{Renderer, console::Console},
+        renderer::{
+            Renderer,
+            console::{Console, Decor, Line},
+        },
         table::Table,
     },
 };
@@ -17,7 +20,15 @@ mod sdk;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let console = Console::default();
+    let decor = Decor {
+        remap_thin_to: Line::Thin,
+        remap_bold_to: Line::Thin,
+        print_escape_codes: false,
+        draw_outer_border: true,
+        ..Decor::default()
+    };
+
+    let console = Console(decor);
 
     let library_paths = find_rknn_library().collect::<Vec<_>>();
 
