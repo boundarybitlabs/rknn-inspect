@@ -7,6 +7,7 @@ use {
 
 mod cli;
 mod io;
+mod native_io;
 mod perf;
 mod sdk;
 
@@ -42,8 +43,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         }
     }
+
+    if args.native_io {
+        if let Err(e) = native_io::do_native_io(&rknn_model, &console) {
+            println!("Error: {}", e);
+            std::process::exit(1);
+        }
+    }
+
     if args.perf {
-        if let Err(e) = do_perf(&rknn_model) {
+        let core_mask = args.npu_cores.as_rknn_const();
+
+        if let Err(e) = do_perf(&rknn_model, core_mask) {
             println!("Error: {}", e);
             std::process::exit(1);
         }

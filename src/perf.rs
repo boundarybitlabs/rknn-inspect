@@ -6,7 +6,12 @@ use rknpu2::{
     tensor::{TensorT, TensorType, builder::TensorBuilder, tensor::Tensor},
 };
 
-pub fn do_perf(rknn_model: &RKNN<RuntimeAPI>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn do_perf(
+    rknn_model: &RKNN<RuntimeAPI>,
+    core_mask: u32,
+) -> Result<(), Box<dyn std::error::Error>> {
+    rknn_model.set_core_mask(core_mask)?;
+
     let io_num = rknn_model.query::<InputOutputNum>()?;
 
     let mut input_tensors = Vec::<TensorT>::new();
