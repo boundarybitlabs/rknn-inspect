@@ -4,12 +4,9 @@ build-backend = "maturin"
 
 [project]
 name = "rknn-inspect"
-requires-python = ">3"
-classifiers = [
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-]
+classifiers = ["Programming Language :: Rust"]
 dynamic = ["version"]
+license = "MIT"
+
 [tool.maturin]
 bindings = "bin"
