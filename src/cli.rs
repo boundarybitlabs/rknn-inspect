@@ -28,6 +28,9 @@ pub struct Args {
 
     #[clap(long, value_enum, default_value_t = NpuCore::Auto, help = "Select NPU cores to use")]
     pub npu_cores: NpuCore,
+
+    #[clap(long, default_value_t = false, help = "Output in Markdown format")]
+    pub markdown: bool,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
