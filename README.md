@@ -14,11 +14,13 @@ Arguments:
   <MODEL_PATH>  Path to the model file
 
 Options:
+      --lib-index <LIB_INDEX>  Which library path to use [default: 0]
   -i, --io                     Show inputs and outputs
   -n, --native-io              Show native input/output information
   -p, --perf                   Enable performance profiling
   -s, --sdk                    Show SDK information
       --npu-cores <NPU_CORES>  Select NPU cores to use [default: auto] [possible values: core0, core1, core2, core-all, core0-1, core0-1-2, auto]
+      --markdown               Output in Markdown format
   -h, --help                   Print help
 ```
 

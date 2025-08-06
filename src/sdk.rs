@@ -1,14 +1,11 @@
 use {
     rknpu2::{RKNN, api::runtime::RuntimeAPI, query::SdkVersion},
-    stanza::{
-        renderer::{Renderer, console::Console},
-        table::Table,
-    },
+    stanza::{renderer::Renderer, table::Table},
 };
 
 pub fn do_sdk(
     rknn: &RKNN<RuntimeAPI>,
-    console: &Console,
+    console: &dyn Renderer<Output = String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut table = Table::default().with_row(vec!["Component", "Version"]);
     let sdk = rknn.query::<SdkVersion>()?;

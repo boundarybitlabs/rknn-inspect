@@ -5,14 +5,17 @@ use {
         query::{InputAttr, InputOutputNum, OutputAttr},
     },
     stanza::{
-        renderer::{Renderer, console::Console},
+        renderer::Renderer,
         style::Styles,
         table::{Cell, Row, Table},
     },
     std::error::Error,
 };
 
-pub fn do_io(rknn_model: &RKNN<RuntimeAPI>, console: &Console) -> Result<(), Box<dyn Error>> {
+pub fn do_io(
+    rknn_model: &RKNN<RuntimeAPI>,
+    console: &dyn Renderer<Output = String>,
+) -> Result<(), Box<dyn Error>> {
     // Subtable for inputs
     let mut table_inputs = Table::default();
     table_inputs.push_row(vec![

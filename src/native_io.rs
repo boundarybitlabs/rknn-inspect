@@ -5,7 +5,7 @@ use {
         query::{InputOutputNum, NativeInputAttr, NativeOutputAttr},
     },
     stanza::{
-        renderer::{Renderer, console::Console},
+        renderer::Renderer,
         style::Styles,
         table::{Cell, Row, Table},
     },
@@ -14,7 +14,7 @@ use {
 
 pub fn do_native_io(
     rknn_model: &RKNN<RuntimeAPI>,
-    console: &Console,
+    console: &dyn Renderer<Output = String>,
 ) -> Result<(), Box<dyn Error>> {
     // Subtable for inputs
     let mut table_inputs = Table::default();

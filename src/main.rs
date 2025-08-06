@@ -3,7 +3,11 @@ use {
     clap::Parser,
     rknpu2::{RKNN, rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK, utils::find_rknn_library},
     stanza::{
-        renderer::{Renderer, console::Console},
+        renderer::{
+            Renderer,
+            console::{Console, Decor, Line},
+            markdown::Markdown,
+        },
         table::Table,
     },
 };
@@ -17,7 +21,19 @@ mod sdk;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    let console = Console::default();
+    let console: Box<dyn Renderer<Output = String>> = if args.markdown {
+        Box::new(Markdown::default())
+    } else {
+        let decor = Decor {
+            remap_thin_to: Line::Thin,
+            remap_bold_to: Line::Thin,
+            print_escape_codes: false,
+            draw_outer_border: true,
+            ..Decor::default()
+        };
+
+        Box::new(Console(decor))
+    };
 
     let library_paths = find_rknn_library().collect::<Vec<_>>();
 
@@ -55,21 +71,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
 
     if args.sdk {
-        if let Err(e) = do_sdk(&rknn_model, &console) {
+        if let Err(e) = do_sdk(&rknn_model, &*console) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
     }
 
     if args.io {
-        if let Err(e) = do_io(&rknn_model, &console) {
+        if let Err(e) = do_io(&rknn_model, &*console) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
     }
 
     if args.native_io {
-        if let Err(e) = native_io::do_native_io(&rknn_model, &console) {
+        if let Err(e) = native_io::do_native_io(&rknn_model, &*console) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
@@ -78,7 +94,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if args.perf {
         let core_mask = args.npu_cores.as_rknn_const();
 
-        if let Err(e) = do_perf(&rknn_model, core_mask) {
+        if let Err(e) = do_perf(&rknn_model, core_mask, &*console) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
