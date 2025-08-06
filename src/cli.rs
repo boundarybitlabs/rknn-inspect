@@ -20,6 +20,12 @@ pub struct Args {
     #[clap(short = 'n', long, help = "Show native input/output information")]
     pub native_io: bool,
 
+    #[clap(long, help = "Show native input/output information in NHWC format")]
+    pub native_nhwc_io: bool,
+
+    #[clap(long, help = "Show native input/output information in NC1HWC2 format")]
+    pub native_nc1hwc2_io: bool,
+
     #[clap(short, long, help = "Enable performance profiling")]
     pub perf: bool,
 

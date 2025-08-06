@@ -15,6 +15,8 @@ use {
 mod cli;
 mod io;
 mod native_io;
+mod native_nc1hwc2_io;
+mod native_nhwc_io;
 mod perf;
 mod sdk;
 
@@ -86,6 +88,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.native_io {
         if let Err(e) = native_io::do_native_io(&rknn_model, &*console) {
+            println!("Error: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    if args.native_nhwc_io {
+        if let Err(e) = native_nhwc_io::do_native_nhwc_io(&rknn_model, &*console) {
+            println!("Error: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    if args.native_nc1hwc2_io {
+        if let Err(e) = native_nc1hwc2_io::do_native_nc1hwc2_io(&rknn_model, &*console) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
