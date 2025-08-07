@@ -6,7 +6,7 @@ build-backend = "maturin"
 name = "rknn-inspect"
 classifiers = ["Programming Language :: Rust"]
 dynamic = ["version"]
-license = "MIT"
+license = {file = "LICENSE-MIT", name = "MIT"}
 
 [tool.maturin]
 bindings = "bin"

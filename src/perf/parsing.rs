@@ -1,5 +1,3 @@
-// ID   OpType             DataType Target InputShape                               OutputShape            Cycles(DDR/NPU/Total)    Time(us)     MacUsage(%)          WorkLoad(0/1/2)      RW(KB)       FullName
-
 use std::io::BufRead;
 
 pub struct PerfData {
@@ -15,38 +13,6 @@ pub struct PerfData {
     pub work_load: String,
     pub rw: String,
     pub full_name: String,
-}
-
-impl PerfData {
-    pub fn new(
-        id: u32,
-        op_type: String,
-        data_type: String,
-        target: String,
-        input_shape: String,
-        output_shape: String,
-        cycles: String,
-        time: String,
-        mac_usage: String,
-        work_load: String,
-        rw: String,
-        full_name: String,
-    ) -> Self {
-        PerfData {
-            id,
-            op_type,
-            data_type,
-            target,
-            input_shape,
-            output_shape,
-            cycles,
-            time,
-            mac_usage,
-            work_load,
-            rw,
-            full_name,
-        }
-    }
 }
 
 /// A simple fixed‐width parser based on a header line.
@@ -115,7 +81,7 @@ impl TableParser {
         let mut result: Vec<Option<String>> = vec![None; self.starts.len()];
 
         // Step 2: Iterate through each column definition to align the words.
-        for (i, &col_start) in self.starts.iter().enumerate() {
+        for (i, _) in self.starts.iter().enumerate() {
             // Peek at the next available word
             if let Some((word_start, word)) = word_iter.peek() {
                 // The logic: a word belongs to column `i` if it starts before

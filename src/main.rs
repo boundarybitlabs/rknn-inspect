@@ -110,7 +110,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if args.perf {
         let core_mask = args.npu_cores.as_rknn_const();
 
-        if let Err(e) = do_perf(&rknn_model, core_mask, &*console) {
+        if let Err(e) = do_perf(&rknn_model, core_mask, &*console, args.full_name) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
