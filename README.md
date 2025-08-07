@@ -28,7 +28,9 @@ Options:
 ```
 
 ## Installation
-PyPI Coming Soon.
+```bash
+pipx install rknn-inspect
+```
 
 ## Extended Usage
 

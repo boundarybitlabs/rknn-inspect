@@ -7,6 +7,8 @@ name = "rknn-inspect"
 classifiers = ["Programming Language :: Rust"]
 dynamic = ["version"]
 license = {file = "LICENSE-MIT", name = "MIT"}
+readme = "README.md"
+description = "A tool for inspecting RKNN models"
 
 [tool.maturin]
 bindings = "bin"
