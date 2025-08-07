@@ -5,10 +5,17 @@ build-backend = "maturin"
 [project]
 name = "rknn-inspect"
 classifiers = ["Programming Language :: Rust"]
+keywords = ["rknn", "machine learning", "rk3588", "npu", "deep learning", "rknn-inspect"]
 dynamic = ["version"]
 license = {file = "LICENSE-MIT", name = "MIT"}
 readme = "README.md"
 description = "A tool for inspecting RKNN models"
+authors = [{ name = "Boyd Johnson", email = "boyd@boundarybit.io" }]
+maintainers = [{ name = "Boyd Johnson", email = "boyd@boundarybit.io" }]
 
 [tool.maturin]
 bindings = "bin"
+
+[project.urls]
+Homepage = "https://github.com/boundarybitlabs/"
+Repository = "https://github.com/boundarybitlabs/rknn-inspect"
