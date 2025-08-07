@@ -17,10 +17,13 @@ Options:
       --lib-index <LIB_INDEX>  Which library path to use [default: 0]
   -i, --io                     Show inputs and outputs
   -n, --native-io              Show native input/output information
+      --native-nhwc-io         Show native input/output information in NHWC format
+      --native-nc1hwc2-io      Show native input/output information in NC1HWC2 format
   -p, --perf                   Enable performance profiling
   -s, --sdk                    Show SDK information
       --npu-cores <NPU_CORES>  Select NPU cores to use [default: auto] [possible values: core0, core1, core2, core-all, core0-1, core0-1-2, auto]
       --markdown               Output in Markdown format
+      --full-name              Show full name of the op in the --perf output
   -h, --help                   Print help
 ```
 
