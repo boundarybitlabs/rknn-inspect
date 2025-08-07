@@ -37,6 +37,13 @@ pub struct Args {
 
     #[clap(long, default_value_t = false, help = "Output in Markdown format")]
     pub markdown: bool,
+
+    #[clap(
+        long,
+        default_value_t = false,
+        help = "Show full name of the op in the --perf output"
+    )]
+    pub full_name: bool,
 }
 
 #[derive(Debug, Clone, ValueEnum)]

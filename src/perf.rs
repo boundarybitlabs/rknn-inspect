@@ -19,6 +19,7 @@ pub fn do_perf(
     rknn_model: &RKNN<RuntimeAPI>,
     core_mask: u32,
     console: &dyn Renderer<Output = String>,
+    full_name: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     rknn_model.set_core_mask(core_mask)?;
 
@@ -76,35 +77,68 @@ pub fn do_perf(
     let (v, summary) = parse_perf_data(reader);
 
     let mut table = Table::default();
-
-    table.push_row(vec![
-        "ID".to_string(),
-        "Op Type".to_string(),
-        "Target".to_string(),
-        "Data Type".to_string(),
-        "Input Shape".to_string(),
-        "Output Shape".to_string(),
-        "Cycles(DDR/NPU/Total)".to_string(),
-        "Time(us)".to_string(),
-        "WorkLoad(0/1/2)".to_string(),
-        "RW(KB)".to_string(),
-        "MacUsage(%)".to_string(),
-    ]);
+    if full_name {
+        table.push_row(vec![
+            "ID".to_string(),
+            "Op Type".to_string(),
+            "Target".to_string(),
+            "Data Type".to_string(),
+            "Input Shape".to_string(),
+            "Output Shape".to_string(),
+            "Cycles(DDR/NPU/Total)".to_string(),
+            "Time(us)".to_string(),
+            "WorkLoad(0/1/2)".to_string(),
+            "RW(KB)".to_string(),
+            "MacUsage(%)".to_string(),
+            "FullName".to_string(),
+        ]);
+    } else {
+        table.push_row(vec![
+            "ID".to_string(),
+            "Op Type".to_string(),
+            "Target".to_string(),
+            "Data Type".to_string(),
+            "Input Shape".to_string(),
+            "Output Shape".to_string(),
+            "Cycles(DDR/NPU/Total)".to_string(),
+            "Time(us)".to_string(),
+            "WorkLoad(0/1/2)".to_string(),
+            "RW(KB)".to_string(),
+            "MacUsage(%)".to_string(),
+        ]);
+    }
 
     for item in v {
-        table.push_row(vec![
-            item.id.to_string(),
-            item.op_type,
-            item.target,
-            item.data_type,
-            item.input_shape,
-            item.output_shape,
-            item.cycles,
-            item.time.to_string(),
-            item.work_load,
-            item.rw,
-            item.mac_usage,
-        ])
+        if full_name {
+            table.push_row(vec![
+                item.id.to_string(),
+                item.op_type,
+                item.target,
+                item.data_type,
+                item.input_shape,
+                item.output_shape,
+                item.cycles,
+                item.time.to_string(),
+                item.work_load,
+                item.rw,
+                item.mac_usage,
+                item.full_name,
+            ])
+        } else {
+            table.push_row(vec![
+                item.id.to_string(),
+                item.op_type,
+                item.target,
+                item.data_type,
+                item.input_shape,
+                item.output_shape,
+                item.cycles,
+                item.time.to_string(),
+                item.work_load,
+                item.rw,
+                item.mac_usage,
+            ])
+        }
     }
 
     println!("{}", console.render(&table));
