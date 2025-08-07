@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.41", features = ["derive"] }
-rknpu2 = { git = "https://github.com/boundarybitlabs/rknpu2-rs", features = [
+rknpu2 = { version = "0.0.2", features = [
     "libloading",
     "rk3576",
 ] }
