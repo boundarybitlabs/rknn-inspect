@@ -1,6 +1,9 @@
 use std::io::{BufReader, Cursor};
 
-use stanza::{renderer::Renderer, table::Table};
+use {
+    rknpu2::query::TensorAttrView,
+    stanza::{renderer::Renderer, table::Table},
+};
 
 use {
     crate::perf::parsing::parse_perf_data,

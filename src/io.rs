@@ -1,4 +1,5 @@
 use {
+    crate::utils::push_attr_row,
     rknpu2::{
         RKNN,
         api::runtime::RuntimeAPI,
@@ -6,8 +7,7 @@ use {
     },
     stanza::{
         renderer::Renderer,
-        style::Styles,
-        table::{Cell, Row, Table},
+        table::Table,
     },
     std::error::Error,
 };
@@ -15,64 +15,59 @@ use {
 pub fn do_io(
     rknn_model: &RKNN<RuntimeAPI>,
     console: &dyn Renderer<Output = String>,
+    full: bool,
 ) -> Result<(), Box<dyn Error>> {
-    // Subtable for inputs
-    let mut table_inputs = Table::default();
-    table_inputs.push_row(vec![
-        "Name",
-        "Type",
-        "Shape",
-        "Format",
-        "Quantization",
-        "Quant Param",
-    ]);
+    let mut tbl = Table::default();
+    if full {
+        tbl.push_row(vec![
+            "IO",
+            "Name",
+            "DType",
+            "Bit",
+            "Signed",
+            "Shape",
+            "Format",
+            "Quant",
+            "Scale",
+            "ZeroPt",
+            "DFP(fl)",
+            "Qmin",
+            "Qmax",
+            "FloatRange≈",
+            "Size(B)",
+            "Size+Stride(B)",
+            "Contig",
+            "Stride N,H,W,C (bytes)",
+            "Notes",
+        ]);
+    } else {
+        tbl.push_row(vec![
+            "IO",
+            "Name",
+            "DType",
+            "Shape",
+            "Format",
+            "Quant",
+            "Scale",
+            "ZeroPt",
+            "QRange",
+            "Size(B)",
+            "Stride N,H,W,C",
+            "Notes",
+        ]);
+    }
 
-    // Subtable for outputs
-    let mut table_outputs = Table::default();
-    table_outputs.push_row(vec![
-        "Name",
-        "Type",
-        "Shape",
-        "Format",
-        "Quantization",
-        "Quant Param",
-    ]);
-
-    // Query number of IOs
     let io_num = rknn_model.query::<InputOutputNum>()?;
 
     for i in 0..io_num.input_num() {
-        let input = rknn_model.query_with_input::<InputAttr>(i)?;
-        table_inputs.push_row(vec![
-            input.name().to_string(),
-            format!("{:?}", input.dtype()),
-            format!("{:?}", input.dims()),
-            format!("{:?}", input.format()),
-            format!("{:?}", input.qnt_type()),
-            format!("{:?}", input.affine_asymmetric_param()),
-        ]);
+        let a = rknn_model.query_with_input::<InputAttr>(i)?;
+        push_attr_row(&mut tbl, &a, full);
     }
-
     for i in 0..io_num.output_num() {
-        let output = rknn_model.query_with_input::<OutputAttr>(i)?;
-        table_outputs.push_row(vec![
-            output.name().to_string(),
-            format!("{:?}", output.dtype()),
-            format!("{:?}", output.dims()),
-            format!("{:?}", output.format()),
-            format!("{:?}", output.qnt_type()),
-            format!("{:?}", output.affine_asymmetric_param()),
-        ]);
+        let a = rknn_model.query_with_input::<OutputAttr>(i)?;
+        push_attr_row(&mut tbl, &a, full);
     }
 
-    // Top-level table with nested tables
-    let mut table_full = Table::default();
-    table_full.push_row(vec!["Inputs", "Outputs"]);
-    table_full.push_row(Row::new(
-        Styles::default(),
-        vec![Cell::from(table_inputs), Cell::from(table_outputs)],
-    ));
-
-    println!("{}", console.render(&table_full).to_string());
+    println!("{}", console.render(&tbl).to_string());
     Ok(())
 }

@@ -2,7 +2,7 @@ use {
     rknpu2::{
         RKNN,
         api::runtime::RuntimeAPI,
-        query::{InputOutputNum, NativeNC1HWC2InputAttr, NativeNC1HWC2OutputAttr},
+        query::{InputOutputNum, NativeNC1HWC2InputAttr, NativeNC1HWC2OutputAttr, TensorAttrView},
     },
     stanza::{
         renderer::Renderer,
@@ -49,7 +49,7 @@ pub fn do_native_nc1hwc2_io(
             format!("{:?}", input.dims()),
             format!("{:?}", input.format()),
             format!("{:?}", input.qnt_type()),
-            format!("{:?}", input.affine_asymmetric_param()),
+            format!("{:?}", input.scale()),
         ]);
     }
 
@@ -61,7 +61,7 @@ pub fn do_native_nc1hwc2_io(
             format!("{:?}", output.dims()),
             format!("{:?}", output.format()),
             format!("{:?}", output.qnt_type()),
-            format!("{:?}", output.affine_asymmetric_param()),
+            format!("{:?}", output.scale()),
         ]);
     }
 

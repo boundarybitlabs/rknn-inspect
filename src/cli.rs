@@ -44,6 +44,9 @@ pub struct Args {
         help = "Show full name of the op in the --perf output"
     )]
     pub full_name: bool,
+
+    #[clap(long, default_value_t = false, help = "Show full io information")]
+    pub full: bool,
 }
 
 #[derive(Debug, Clone, ValueEnum)]

@@ -19,6 +19,7 @@ mod native_nc1hwc2_io;
 mod native_nhwc_io;
 mod perf;
 mod sdk;
+mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -80,7 +81,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.io {
-        if let Err(e) = do_io(&rknn_model, &*console) {
+        if let Err(e) = do_io(&rknn_model, &*console, args.full) {
             println!("Error: {}", e);
             std::process::exit(1);
         }

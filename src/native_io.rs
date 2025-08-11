@@ -2,7 +2,7 @@ use {
     rknpu2::{
         RKNN,
         api::runtime::RuntimeAPI,
-        query::{InputOutputNum, NativeInputAttr, NativeOutputAttr},
+        query::{InputOutputNum, NativeInputAttr, NativeOutputAttr, TensorAttrView},
     },
     stanza::{
         renderer::Renderer,
@@ -49,7 +49,7 @@ pub fn do_native_io(
             format!("{:?}", input.dims()),
             format!("{:?}", input.format()),
             format!("{:?}", input.qnt_type()),
-            format!("{:?}", input.affine_asymmetric_param()),
+            format!("{:?}", input.scale()),
         ]);
     }
 
@@ -61,7 +61,7 @@ pub fn do_native_io(
             format!("{:?}", output.dims()),
             format!("{:?}", output.format()),
             format!("{:?}", output.qnt_type()),
-            format!("{:?}", output.affine_asymmetric_param()),
+            format!("{:?}", output.scale()),
         ]);
     }
 
