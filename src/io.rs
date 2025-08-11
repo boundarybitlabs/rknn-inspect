@@ -3,19 +3,20 @@ use {
     rknpu2::{
         RKNN,
         api::runtime::RuntimeAPI,
-        query::{InputAttr, InputOutputNum, OutputAttr},
+        query::{InputOutputNum, QueryWithInput, TensorAttrView},
     },
-    stanza::{
-        renderer::Renderer,
-        table::Table,
-    },
+    stanza::{renderer::Renderer, table::Table},
     std::error::Error,
 };
 
-pub fn do_io(
+pub fn do_io<
+    I: QueryWithInput<Input = u32> + TensorAttrView,
+    O: QueryWithInput<Input = u32> + TensorAttrView,
+>(
     rknn_model: &RKNN<RuntimeAPI>,
     console: &dyn Renderer<Output = String>,
     full: bool,
+    prefix: &str,
 ) -> Result<(), Box<dyn Error>> {
     let mut tbl = Table::default();
     if full {
@@ -26,7 +27,7 @@ pub fn do_io(
             "Bit",
             "Signed",
             "Shape",
-            "Format",
+            (prefix.to_string() + "Format").as_str(),
             "Quant",
             "Scale",
             "ZeroPt",
@@ -46,7 +47,7 @@ pub fn do_io(
             "Name",
             "DType",
             "Shape",
-            "Format",
+            (prefix.to_string() + "Format").as_str(),
             "Quant",
             "Scale",
             "ZeroPt",
@@ -60,11 +61,11 @@ pub fn do_io(
     let io_num = rknn_model.query::<InputOutputNum>()?;
 
     for i in 0..io_num.input_num() {
-        let a = rknn_model.query_with_input::<InputAttr>(i)?;
+        let a = rknn_model.query_with_input::<I>(i)?;
         push_attr_row(&mut tbl, &a, full);
     }
     for i in 0..io_num.output_num() {
-        let a = rknn_model.query_with_input::<OutputAttr>(i)?;
+        let a = rknn_model.query_with_input::<O>(i)?;
         push_attr_row(&mut tbl, &a, full);
     }
 
