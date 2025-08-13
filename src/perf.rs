@@ -1,19 +1,13 @@
-use std::io::{BufReader, Cursor};
-
-use {
-    rknpu2::query::TensorAttrView,
-    stanza::{renderer::Renderer, table::Table},
-};
-
 use {
     crate::perf::parsing::parse_perf_data,
     rknpu2::{
         RKNN,
         api::runtime::RuntimeAPI,
-        bf16, f16,
-        query::{InputAttr, InputOutputNum, PerfDetail},
-        tensor::{TensorT, TensorType, builder::TensorBuilder, tensor::Tensor},
+        io::{buffer::BufView, input::Input},
+        query::{InputAttr, InputOutputNum, PerfDetail, TensorAttrView},
     },
+    stanza::{renderer::Renderer, table::Table},
+    std::io::{BufReader, Cursor},
 };
 
 mod parsing;
@@ -26,52 +20,7 @@ pub fn do_perf(
 ) -> Result<(), Box<dyn std::error::Error>> {
     rknn_model.set_core_mask(core_mask)?;
 
-    let io_num = rknn_model.query::<InputOutputNum>()?;
-
-    let mut input_tensors = Vec::<TensorT>::new();
-
-    for i in 0..io_num.input_num() {
-        let attr = rknn_model.query_with_input::<InputAttr>(i)?;
-        match attr.dtype() {
-            rknpu2::tensor::DataTypeKind::Float32(_) => {
-                input_tensors.push(build_tensor::<f32>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Float16(_) => {
-                input_tensors.push(build_tensor::<f16>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::BFloat16(_) => {
-                input_tensors.push(build_tensor::<bf16>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Int4(_) => todo!(),
-            rknpu2::tensor::DataTypeKind::Int8(_) => {
-                input_tensors.push(build_tensor::<i8>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::UInt8(_) => {
-                input_tensors.push(build_tensor::<u8>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Int16(_) => {
-                input_tensors.push(build_tensor::<i16>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::UInt16(_) => {
-                input_tensors.push(build_tensor::<u16>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Int32(_) => {
-                input_tensors.push(build_tensor::<i32>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::UInt32(_) => {
-                input_tensors.push(build_tensor::<u32>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Int64(_) => {
-                input_tensors.push(build_tensor::<i64>(rknn_model, i)?.into())
-            }
-            rknpu2::tensor::DataTypeKind::Bool(_) => todo!(),
-            rknpu2::tensor::DataTypeKind::Max(_) => todo!(),
-            rknpu2::tensor::DataTypeKind::Other(_) => todo!(),
-        }
-    }
-
-    rknn_model.set_inputs(input_tensors)?;
-    rknn_model.run()?;
+    run_tensors(rknn_model)?;
 
     let perf_info = rknn_model.query::<PerfDetail>()?;
     let details = Cursor::new(perf_info.details().as_bytes());
@@ -198,12 +147,30 @@ pub fn do_perf(
     Ok(())
 }
 
-fn build_tensor<T: TensorType + Copy>(
-    rknn_model: &RKNN<RuntimeAPI>,
-    index: u32,
-) -> Result<Tensor<T>, Box<dyn std::error::Error>> {
-    let mut tensor = TensorBuilder::new_input(rknn_model, index).allocate::<T>()?;
-    tensor.fill_with(T::default());
+fn run_tensors(rknn_model: &RKNN<RuntimeAPI>) -> Result<(), Box<dyn std::error::Error>> {
+    let io_num = rknn_model.query::<InputOutputNum>()?;
 
-    Ok(tensor)
+    // Hold buffers separately so they live long enough
+    let mut bufs = Vec::with_capacity(io_num.input_num() as usize);
+    let mut inputs: Vec<Input> = Vec::with_capacity(io_num.input_num() as usize);
+
+    for i in 0..io_num.input_num() {
+        let attr = rknn_model.query_with_input::<InputAttr>(i)?;
+
+        bufs.push((vec![0.01f32; attr.num_elements() as usize], attr.format()));
+    }
+
+    for (i, slice) in bufs.iter().enumerate() {
+        inputs.push(Input::new(
+            i as u32,
+            BufView::F32(slice.0.as_slice()),
+            false,
+            slice.1,
+        ));
+    }
+
+    rknn_model.set_inputs(inputs)?;
+    rknn_model.run()?;
+
+    Ok(())
 }
