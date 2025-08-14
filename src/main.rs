@@ -1,7 +1,15 @@
 use {
     crate::{cli::Args, io::do_io, perf::do_perf, sdk::do_sdk},
     clap::Parser,
-    rknpu2::{RKNN, rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK, utils::find_rknn_library},
+    rknpu2::{
+        RKNN,
+        query::{
+            InputAttr, NativeInputAttr, NativeNC1HWC2InputAttr, NativeNC1HWC2OutputAttr,
+            NativeNHWCInputAttr, NativeNHWCOutputAttr, NativeOutputAttr, OutputAttr,
+        },
+        rknpu2_sys::RKNN_FLAG_COLLECT_PERF_MASK,
+        utils::find_rknn_library,
+    },
     stanza::{
         renderer::{
             Renderer,
@@ -14,11 +22,9 @@ use {
 
 mod cli;
 mod io;
-mod native_io;
-mod native_nc1hwc2_io;
-mod native_nhwc_io;
 mod perf;
 mod sdk;
+mod utils;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -80,28 +86,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.io {
-        if let Err(e) = do_io(&rknn_model, &*console) {
+        if let Err(e) = do_io::<InputAttr, OutputAttr>(&rknn_model, &*console, args.full, "") {
             println!("Error: {}", e);
             std::process::exit(1);
         }
     }
 
     if args.native_io {
-        if let Err(e) = native_io::do_native_io(&rknn_model, &*console) {
+        if let Err(e) =
+            do_io::<NativeInputAttr, NativeOutputAttr>(&rknn_model, &*console, args.full, "Native ")
+        {
             println!("Error: {}", e);
             std::process::exit(1);
         }
     }
 
     if args.native_nhwc_io {
-        if let Err(e) = native_nhwc_io::do_native_nhwc_io(&rknn_model, &*console) {
+        if let Err(e) = do_io::<NativeNHWCInputAttr, NativeNHWCOutputAttr>(
+            &rknn_model,
+            &*console,
+            args.full,
+            "Native NHWC ",
+        ) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
     }
 
     if args.native_nc1hwc2_io {
-        if let Err(e) = native_nc1hwc2_io::do_native_nc1hwc2_io(&rknn_model, &*console) {
+        if let Err(e) = do_io::<NativeNC1HWC2InputAttr, NativeNC1HWC2OutputAttr>(
+            &rknn_model,
+            &*console,
+            args.full,
+            "Native NC1HWC2 ",
+        ) {
             println!("Error: {}", e);
             std::process::exit(1);
         }
