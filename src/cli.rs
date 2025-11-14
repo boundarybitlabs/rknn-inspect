@@ -27,7 +27,7 @@ pub struct Args {
     pub native_nc1hwc2_io: bool,
 
     #[clap(short, long, help = "Enable performance profiling")]
-    pub perf: bool,
+    pub perf: Option<PerfIO>,
 
     #[clap(short, long, help = "Show SDK information")]
     pub sdk: bool,
@@ -72,4 +72,12 @@ impl NpuCore {
             NpuCore::Auto => RKNN_NPU_CORE_AUTO,
         }
     }
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum PerfIO {
+    IO,
+    NHWC,
+    NC1HWC2,
+    Native,
 }

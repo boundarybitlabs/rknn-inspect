@@ -1,5 +1,10 @@
 use {
-    crate::{cli::Args, io::do_io, perf::do_perf, sdk::do_sdk},
+    crate::{
+        cli::{Args, PerfIO},
+        io::do_io,
+        perf::do_perf,
+        sdk::do_sdk,
+    },
     clap::Parser,
     rknpu2::{
         RKNN,
@@ -125,10 +130,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    if args.perf {
+    if let Some(perf) = args.perf {
         let core_mask = args.npu_cores.as_rknn_const();
 
-        if let Err(e) = do_perf(&rknn_model, core_mask, &*console, args.full_name) {
+        if let Err(e) = match perf {
+            PerfIO::IO => {
+                do_perf::<InputAttr>(&rknn_model, core_mask, &*console, args.full_name, false)
+            }
+            PerfIO::NHWC => do_perf::<NativeNHWCInputAttr>(
+                &rknn_model,
+                core_mask,
+                &*console,
+                args.full_name,
+                true,
+            ),
+            PerfIO::NC1HWC2 => do_perf::<NativeNC1HWC2InputAttr>(
+                &rknn_model,
+                core_mask,
+                &*console,
+                args.full_name,
+                true,
+            ),
+            PerfIO::Native => {
+                do_perf::<NativeInputAttr>(&rknn_model, core_mask, &*console, args.full_name, true)
+            }
+        } {
             println!("Error: {}", e);
             std::process::exit(1);
         }
